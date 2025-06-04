@@ -176,7 +176,7 @@ Special thanks to:
 
 Derek Wang for the original font rendering concept.
 
-[MadLittleMods/FP-V-GA-Text](url) for the base ASCII font and rendering structure.
+[[MadLittleMods/FP-V-GA-Text](url) ](https://github.com/MadLittleMods/FP-V-GA-Text) for the base ASCII font and rendering structure.
 
 ---
 
