@@ -4,7 +4,7 @@ This project implements a VGA-compatible text terminal on the ZedBoard Zynq-7000
 
 ---
 
-🧠 Project Summary
+# 🧠 Project Summary
 
 Top-Level Design: VGA_Text_Top.vhd
 
