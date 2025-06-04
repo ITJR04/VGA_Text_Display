@@ -68,7 +68,7 @@ The monitor displays multiple strings placed at various positions on screen. Eac
 
 ---
 
-# 🔧 How It Works
+# How It Works
 
 1. Font Storage
 
