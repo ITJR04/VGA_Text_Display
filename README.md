@@ -1,10 +1,10 @@
-VGA Text Terminal Character Display on ZedBoard (Zynq-7000)
+# VGA Text Terminal Character Display on ZedBoard (Zynq-7000)
 
 This project implements a VGA-compatible text terminal on the ZedBoard Zynq-7000 FPGA platform. Text is rendered directly on a VGA monitor at 640x480 resolution using a custom pixel font and sync generator written in VHDL. The design is modular, reusable, and extensible.
 
 ---
 
-# 🧠 Project Summary
+# Project Summary
 
 Top-Level Design: VGA_Text_Top.vhd
 
@@ -20,7 +20,7 @@ Tools: Vivado 2024.2 Webpack
 
 ---
 
-📂 Directory Contents
+# Directory Contents
 
 File Description
 
@@ -58,7 +58,7 @@ XDC constraints for pin assignment (VGA signals, clock) for ZedBoard.
 
 ---
 
-🖼️ Output Demo
+#  Output Demo
 
 ![VGA_Text_Display_Output](https://github.com/user-attachments/assets/eb43e76b-afbb-4f68-a728-d3858fb026e5)
 
@@ -68,7 +68,7 @@ The monitor displays multiple strings placed at various positions on screen. Eac
 
 ---
 
-🔧 How It Works
+# 🔧 How It Works
 
 1. Font Storage
 
@@ -120,7 +120,7 @@ Sends sync + coordinates to wrapper
 
 ---
 
-⏱️ Timing Details (VGA 640x480 @ 60 Hz)
+#  Timing Details (VGA 640x480 @ 60 Hz)
 
 Parameter
 
@@ -140,7 +140,7 @@ Vertical Pixels
 
 ---
 
-🚀 Getting Started
+# Getting Started
 
 1. Clone and Open in Vivado
 
@@ -168,7 +168,7 @@ After synthesis and implementation, program the bitstream to your ZedBoard. You 
 
 ---
 
-📜 Credits
+# Credits
 
 This project was inspired by Derek-X-Wang/VGA-Text-Generator. The idea of checking pixel positions against character bitmaps and rendering text via coordinate logic comes from that repository.
 
@@ -180,7 +180,7 @@ MadLittleMods/FP-VGA-Text for the base ASCII font and rendering structure.
 
 ---
 
-📘 License
+#  License
 
 This project is licensed under the MIT License.
 See the LICENSE file for details.
