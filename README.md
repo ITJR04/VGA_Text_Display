@@ -1,157 +1,193 @@
-🖥️ VGA Text Display on ZedBoard Zynq-7000
+VGA Text Terminal Character Display on ZedBoard (Zynq-7000)
 
-This project implements a simple VGA text terminal in VHDL on the ZedBoard Zynq-7000. It displays the static message "HELLO FPGA" centered on a VGA monitor using 640×480 resolution at 60 Hz. The design consists of a VGA sync generator, font ROM, character buffer, and a text renderer module. A 25 MHz pixel clock is derived from the ZedBoard's 100 MHz system clock using a Clocking Wizard IP.
-
----
-
-📦 Project Details
-
-Top Module: vga_text_top
-
-Clock Input: 100 MHz onboard oscillator
-
-Pixel Clock: 25 MHz from Clock Wizard (MMCM IP)
-
-Text Output: "HELLO FPGA" (white text on black background)
-
-Video Output: VGA (RGB + HSYNC, VSYNC)
-
-Reset Pin: SW5 (H18)
-
-Design Goal: Demonstrate text rendering using ROMs, VGA sync timing, and VHDL modules
+This project implements a VGA-compatible text terminal on the ZedBoard Zynq-7000 FPGA platform. Text is rendered directly on a VGA monitor at 640x480 resolution using a custom pixel font and sync generator written in VHDL. The design is modular, reusable, and extensible.
 
 ---
 
-🛠️ Tools Used
+🧠 Project Summary
 
-Vivado Design Suite (Vivado 2024.2)
+Top-Level Design: VGA_Text_Top.vhd
 
-Clocking Wizard IP (MMCM for VGA pixel clock)
+Resolution: 640x480 @ 60 Hz
 
-VHDL for all logic components
+Clock: 25 MHz (generated from 100 MHz ZedBoard clock via Clocking Wizard)
 
-VGA monitor and cable (tested on AOC C27G1 @ 640x480 VGA input)
+Font: 8x16 pixel grid, supports ASCII 0–127
 
-Optional: Simulation with Vivado Simulator or GTKWave
+Platform: Digilent ZedBoard (Zynq-7000 SoC)
 
----
-
-🧠 Design Overview
-
-The system is composed of:
-
-Clocking Wizard
-
-Converts 100 MHz to 25 MHz for VGA timing
-
-"Locked" output connects to LED for debug
-
-VGA Sync Generator (VGA_sync_gen)
-
-Generates HSYNC, VSYNC, hcount, vcount, and video_on signal
-
-Strictly follows 640×480 @ 60 Hz VGA timing
-
-Font ROM (font_rom)
-
-Outputs 8-bit wide font glyphs for each ASCII row
-
-Contains predefined pixel map for common characters
-
-Character ROM (char_rom)
-
-80×60 buffer filled with the message "HELLO FPGA"
-
-Static content for display (not writable)
-
-Text Renderer (text_renderer)
-
-Takes character position, accesses font ROM and char ROM
-
-Outputs 3-bit RGB video signal
-
-White-on-black color scheme
+Tools: Vivado 2024.2 Webpack
 
 ---
 
-⚠️ Known Issues and Troubleshooting
+📂 Directory Contents
 
-Black Screen or No Signal
+File Description
 
-Ensure clock wizard is generating 25 MHz
+CommonPackage.vhd
 
-Check if LD0 is ON (locked signal)
+Package containing shared constants like font width/height and custom types like point_2d.
 
-Verify monitor is set to VGA input, 640x480 @ 60Hz
+Font_ROM.vhd
 
-Cut-off or Misaligned Text
+8x16 font ROM for ASCII characters (0–127), returns 8-bit row bitmap per address.
 
-This was observed with some VGA monitors
+Pixel_On_Text.vhd
 
-You can vertically offset the row address in char_rom to better center the message
+Determines whether a VGA pixel is inside the shape of any displayed character.
 
-Text Fuzzy or Scaled
+Full_Wrapper.vhd
 
-Use monitor settings to enable 1:1 or original scale (not full-screen stretched)
+Instantiates multiple Pixel_On_Text modules to place multiple hardcoded text lines on screen.
 
----
+vga_sync.vhd
 
-🔌 Build and Program Steps in Vivado
+Generates horizontal and vertical sync, video enable, and pixel coordinates for 640x480 VGA display.
 
-1. Open the Project
+VGA_Text_Top.vhd
 
-Launch Vivado
+Top-level VHDL file wiring together the clock, VGA sync, and text rendering modules.
 
-Create a new RTL project
+clocking_wizard.xci
 
-Add all provided .vhd source files and vga_constraints.xdc
+IP configuration for generating 25 MHz clock using Xilinx Clocking Wizard.
 
-2. Add IP
+VGA_Text_constraints.xdc
 
-Add a Clocking Wizard IP to generate a 25 MHz clock from 100 MHz input
-
-Enable locked output for debug
-
-3. Run Synthesis and Implementation
-
-Click Run Synthesis
-
-Click Run Implementation
-
-Verify timing report passes for 25 MHz pixel clock
-
-4. Generate Bitstream
-
-Click Generate Bitstream
-
-5. Program the FPGA
-
-Connect ZedBoard via JTAG
-
-Go to Open Hardware Manager > Open Target > Auto Connect
-
-Click Program Device and select the .bit file
-
-6. Observe Output
-
-Connect a VGA monitor
-
-Set to VGA input (640×480)
-
-You should see the message HELLO FPGA in the center
-
-LD0 LED should be ON (clock lock confirmed)
+XDC constraints for pin assignment (VGA signals, clock) for ZedBoard.
 
 ---
 
-✅ Outcome
+🖼️ Output Demo
 
-This project reinforces:
+![VGA_Text_Display_Output](https://github.com/user-attachments/assets/eb43e76b-afbb-4f68-a728-d3858fb026e5)
 
-VGA signal generation
 
-Use of ROMs and rendering logic in hardware
 
-Clock domain handling via MMCM
+The monitor displays multiple strings placed at various positions on screen. Each string is rendered using the 8x16 ASCII font.
 
-Hands-on FPGA timing and design flow
+---
+
+🔧 How It Works
+
+1. Font Storage
+
+Font_ROM stores the bitmap for each ASCII character.
+
+Each character is 8 pixels wide by 16 pixels tall.
+
+The address is calculated as: font_address = (char_ascii * 16) + row_offset
+
+2. Pixel Detection
+
+Pixel_On_Text accepts:
+
+displayText: a fixed string to draw
+
+position: top-left anchor of the string
+
+horzCoord, vertCoord: current pixel from VGA sync
+
+The module determines if the current pixel lies within the active character grid.
+
+If so, it outputs pixel = '1'.
+
+3. Text Composition
+
+Full_Wrapper instantiates several Pixel_On_Text modules to place multiple text strings.
+
+These outputs are ORed together.
+
+4. Sync Generation
+
+vga_sync generates:
+
+Pixel position counters hcount, vcount
+
+Horizontal and vertical sync pulses
+
+video_on signal to mask drawing outside visible area
+
+5. Top-Level System
+
+VGA_Text_Top ties everything together:
+
+Instantiates a Clock Wizard to downscale clock to 25 MHz
+
+Generates sync signals
+
+Sends sync + coordinates to wrapper
+
+---
+
+⏱️ Timing Details (VGA 640x480 @ 60 Hz)
+
+Parameter
+
+Value
+
+Pixel Clock
+
+25 MHz
+
+Horizontal Pixels
+
+800 (640 active + 160 blanking)
+
+Vertical Pixels
+
+525 (480 active + 45 blanking)
+
+---
+
+🚀 Getting Started
+
+1. Clone and Open in Vivado
+
+git clone https://github.com/YOUR_USERNAME/VGA_Text_Terminal_Display.git
+
+Open the project or create a new one and add the following sources:
+
+All .vhd files
+
+clocking_wizard.xci
+
+VGA_Text_constraints.xdc
+
+2. Generate Clock IP
+
+Use Vivado IP Integrator to generate a 25 MHz clock via Clocking Wizard.
+
+3. Assign Pins in Constraints File
+
+Make sure your VGA_Text_constraints.xdc matches your VGA PMOD or onboard VGA output.
+
+4. Synthesize, Implement, and Program
+
+After synthesis and implementation, program the bitstream to your ZedBoard. You should see the test strings appear on your connected VGA monitor.
+
+---
+
+📜 Credits
+
+This project was inspired by Derek-X-Wang/VGA-Text-Generator. The idea of checking pixel positions against character bitmaps and rendering text via coordinate logic comes from that repository.
+
+Special thanks to:
+
+Derek Wang for the original font rendering concept.
+
+MadLittleMods/FP-VGA-Text for the base ASCII font and rendering structure.
+
+---
+
+📘 License
+
+This project is licensed under the MIT License.
+See the LICENSE file for details.
+
+---
+
+📬 Contact
+
+For questions, suggestions, or collaborations, contact:
+Isai Torres – GitHub Profile
